@@ -1,0 +1,14 @@
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/CMakeFiles/install/strip.dir
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/CMakeFiles/install/local.dir
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/CMakeFiles/install.dir
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/CMakeFiles/list_install_components.dir
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/CMakeFiles/rebuild_cache.dir
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/CMakeFiles/edit_cache.dir
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/src/CMakeFiles/install/strip.dir
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/src/CMakeFiles/install/local.dir
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/src/CMakeFiles/edit_cache.dir
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/src/CMakeFiles/hello_static.dir
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/src/CMakeFiles/install.dir
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/src/CMakeFiles/list_install_components.dir
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/src/CMakeFiles/rebuild_cache.dir
+/home/la/cmakelearnrecord/cmake_learn/hello-world-lib/build/src/CMakeFiles/hello_dynamic.dir
