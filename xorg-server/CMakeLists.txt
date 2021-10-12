@@ -1,0 +1,162 @@
+cmake_minimum_required(VERSION 3.16)
+
+project(XSERVER)
+
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+	include(cmake/CompilerStandalone.cmake)
+endif()
+
+find_program(MESON_EXECUTABLE
+	NAMES meson
+	PATHS /usr/bin /usr/local/bin
+	)
+if(MESON_EXECUTEABLE-NOTFOUND)
+	message(FATAL_ERROR "not meson script found")
+else()
+	message("MESON_EXECUTABLE: ${MESON_EXCUTABLE}")
+endif()
+
+find_program(NINJA_EXECUTABLE
+	NAMES ninja
+	PATHS /usr/bin /usr/loca/bin
+	)
+if(NINJA_EXECUTABLE-NOTFOUND)
+	message(FATAL_ERROR "Not ninja found")
+else()
+	message("NINJA_EXCUTABLE: ${NINJA_EXECUTABLE}")
+endif()
+
+
+include(ExternalProject)
+message("***GLOBAL_ROOT_SRC_DIR :${GLOBAL_ROOT_SRC_DIR}")
+#include(${GLOBAL_ROOT_SRC_DIR}/cmake/utils.cmake)
+message("***after GLOBAL_ROOT_SRC_DIR :${GLOBAL_ROOT_SRC_DIR}")
+include(InstallRequiredSystemLibraries)
+include(CMakePackageConfigHelpers)
+
+
+set(XSERVER_SOURCE_DIR ${GLOBAL_ROOT_SRC_DIR}/imported/xorg-server)
+message("XSERVER_SOURCE_DIR: ${XSERVER_SOURCE_DIR}")
+
+
+find_program(MAKE_EXE NAMES gmake nmake make
+	PATHS /usr/bin /usr/local/bin
+)
+message("MAKE_EXE is ${MAKE_EXE}")
+
+
+if(MAKE_EXE-NOTFOUND)
+	message(FATAL_ERROR "Not ninja found")
+else()
+	message("MAKE_EXE: ${MAKE_EXE}")
+endif()
+
+string(TOLOWER ${CMAKE_BUILD_TYPE} buildtype)
+
+set(XSERVER_BUILD_DIR ${})
+message("*****XSERVER_BUILD_DIR is ${XSERVER_BUILD_DIR}")
+set(INSTALL_CMAKE_DIR ${XSERVER_BUILD_DIR/install})
+
+message("******INSTALL_CMAKE_DIR : ${INSTALL_CMAKE_DIR}")
+
+set(XSERVER_PREFIX ${INSTALL_CMAKE_DIR}/usr)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|CLang")
+	set(XSERVER_LIB_DIR ${INSTALL_CMAKE_DIR}/usr/lib/${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_SYSTEM_NAME}-gnu)
+	string(TOLOWER ${XSERVER_LIB_DIR} XSERVER_LIB_DIR)
+else()
+	set(XSERVER_LIB_DIR ${INSTALL_CMAKE_DIR}/usr/lib)
+endif()
+
+
+message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+message("XSERVER_SOURCE_DIR: ${XSERVER_SOURCE_DIR}")
+
+#ExternalProject_Add(xserver
+#	SOURCE_DIR ${XSERVER_SOURCE_DIR}
+#	BINARY_DIR ${CMAKE_BINARY_DIR}
+#	CONFIGURE_COMMAND  ./autogen.sh COMMAND ./configure 
+#	-Denable_xvfb=false
+#	BUILD_COMMAND cd ${XSERVER_SOURCE_DIR} &&  ${MAKE_EXE}
+#	INSTALL_COMMAND $MAKE_EXE} install
+#)
+
+EXternalProject_Add(xserver
+	SOURCE_DIR ${XSERVER_SOURCE_DIR}
+	BINARY_DIR ${CMAKE_BINARY_DIR}
+	BUILD_ALWAYS 1
+	CONFIGURE_COMMAND ${MESON_EXECUTABLE}
+	--buildtype "${buildtype}"
+	--prefix "${CMAKE_BINARY_DIR}/install"
+	${XSERVER_SOURCE_DIR}
+	BUILD_COMMAND ${NINJA_EXECUTABLE} -C <BINARY_DIR>
+	INSTALL_COMMAND ${NINJA_EXECUTABLE} -C <BINARY_DIR> install
+)
+
+message("CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+message("DIR: ${CMAKE_BINARY_DIR}/install/include DES:{CMAKE_INSTALL_PREFIX}") 
+install(DIRECTORY ${CMAKE_BINARY_DIR}/install/include
+	DESTINATION ${CMAKE_INSTALL_PREFIX}
+)
+
+#get_version(${XSERVER_SOURCE_DIR} "1.20.10")
+set(VERSION_MAJOR 1)
+set(VERSION_MINOR 20)
+set(VERSION_PATCH 10)
+message("VERSION num is ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+write_basic_package_version_file(
+	"${CMAKE_CURRENT_BINARY_DIR}/XserverConfigVersion.cmake"
+	VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
+	COMPATIBILITY AnyNewerVersion
+	)
+
+configure_package_config_file(cmake/Config.cmake.in
+	"${CMAKE_CURRENT_BINARY_DIR}/XserverConfig.cmake"
+	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake
+	)
+message("LIB DIR: ${CMAKE_BINARY_DIR}/install/${CMAKE_INSTALL_LIBDIR}")
+message("LIB DESTINATION: ${CMAKE_INSTALL_PREFIX}")
+
+install(DIRECTORY ${CMAKE_BINARY_DIR}/install/${CMAKE_INSTALL_LIBDIR}
+	DESTINATION ${CMAKE_INSTALL_PREFIX}
+	)
+message("FindXSERVER command execute : ${CMAKE_CURRENT_BINARY_DIR}")
+install(FILES
+	"${CMAKE_CURRENT_BINARY_DIR}/XserverConfig.cmake"
+	"${CMAKE_CURRENT_BINARY_DIR}/XserverConfigVersion.cmake"
+	"cmake/FindXSERVER.cmake"
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake
+	)
+#set(CPACK_PACKAGE_DIRECTORY "${TARGET_OUT}/installer")
+set(CPACK_PACKAGE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/copyright")
+
+set(CPACK_PACKAGE_VERSION_MAJOR "${VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${VERSION_PATCH}")
+
+if(DEFINED VERSION_BUILD AND NOT ${VERSION_BUILD} STREQUAL "")
+	set(PACKAGE_VERSION_STRING "${VERSION_BUILD}")
+else()
+	set(PACKAGE_VERSION_STRING "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+endif()
+
+set(CPACK_PACKAGE_VERSION ${PACKAGE_VERSION_STRING})
+
+## Packing directives
+set(CPACK_GENERATOR "DEB; RPM" CACHE STRING "Package types to build")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/description")
+set(CPACK_PACKAGE_NAME xserever)
+set(CPACK_PACKAGE_VENDOR "XDXCT")
+set(CPACK_PACKAGE_CONTACT "Supported@xdxct.com")
+set(CPACK_PACKAGE_HOMEPAGE "http://www.xdxct.com")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "XDXCT XSERVER User Mode Driver")
+
+
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PACKAGE_VERSION_STRING}.${CMAKE_SYSTEM_NAME}.${CMAKE_SYSTEM_PROCESSOR}")
+
+if(UNIX)
+
+endif()
+include(CPack)
+
+
