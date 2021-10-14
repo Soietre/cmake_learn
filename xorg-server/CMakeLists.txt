@@ -6,6 +6,9 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 	include(cmake/CompilerStandalone.cmake)
 endif()
 
+##set module path to call FindXXX.cmake"
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 find_program(MESON_EXECUTABLE
 	NAMES meson
 	PATHS /usr/bin /usr/local/bin
@@ -33,18 +36,16 @@ include(ExternalProject)
 include(InstallRequiredSystemLibraries)
 include(CMakePackageConfigHelpers)
 
+set(IMPORTEDDIR ${GLOBAL_ROOT_SRC_DIR}/imported)
 
-set(XSERVER_SOURCE_DIR ${GLOBAL_ROOT_SRC_DIR}/imported/xorg-server)
+set(XSERVER_SOURCE_DIR ${IMPORTEDDIR}/xorg-server)
 message("XSERVER_SOURCE_DIR: ${XSERVER_SOURCE_DIR}")
+set(INSTALL_CMAKE_DIR ${XSERVER_BUILD_DIR}/install)
+message(STATUS "INSTALL_CMAKE_DIR : ${INSTALL_CMAKE_DIR}")
 
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "set buildtype debug")
 message("CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
 string(TOLOWER ${CMAKE_BUILD_TYPE} buildtype)
-
-set(XSERVER_BUILD_DIR ${PROJECT_BIBARY_DIR})
-message("*****XSERVER_BUILD_DIR is ${XSERVER_BUILD_DIR}")
-set(INSTALL_CMAKE_DIR ${XSERVER_BUILD_DIR/install})
-message("******INSTALL_CMAKE_DIR : ${INSTALL_CMAKE_DIR}")
 
 set(XSERVER_PREFIX ${INSTALL_CMAKE_DIR}/usr)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|CLang")
@@ -57,6 +58,18 @@ endif()
 
 message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 message("XSERVER_SOURCE_DIR: ${XSERVER_SOURCE_DIR}")
+
+##check and add dependency third package###
+option(BUILD_XKBFILE_SUPPORT "Build with xkbfile support" ON)
+if(BUILD_XKBFILE_SUPPORT)
+	message(STATUS "Calling Find XKBFILE.cmake")
+	find_package(XKBFILE REQUIRED)
+	#add_library(XKBFILE SHARED)
+	#target_link_libraries(XSERVER XKBFILE)
+endif()
+
+set(LIBS ${XKBFILE_LIBRARY})
+set(CMAKE_C_LINK_EXECUTABLE "${CMAKE_C_LINK_EXECUTABLE} -ldl")
 
 EXternalProject_Add(xserver
 	SOURCE_DIR ${XSERVER_SOURCE_DIR}
