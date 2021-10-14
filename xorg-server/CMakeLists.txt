@@ -10,10 +10,10 @@ find_program(MESON_EXECUTABLE
 	NAMES meson
 	PATHS /usr/bin /usr/local/bin
 	)
-if(MESON_EXECUTEABLE-NOTFOUND)
+if(MESON_EXECUTABLE-NOTFOUND)
 	message(FATAL_ERROR "not meson script found")
 else()
-	message("MESON_EXECUTABLE: ${MESON_EXCUTABLE}")
+	message("MESON_EXECUTABLE: ${MESON_EXECUTABLE}")
 endif()
 
 find_program(NINJA_EXECUTABLE
@@ -28,9 +28,8 @@ endif()
 
 
 include(ExternalProject)
-message("***GLOBAL_ROOT_SRC_DIR :${GLOBAL_ROOT_SRC_DIR}")
+
 #include(${GLOBAL_ROOT_SRC_DIR}/cmake/utils.cmake)
-message("***after GLOBAL_ROOT_SRC_DIR :${GLOBAL_ROOT_SRC_DIR}")
 include(InstallRequiredSystemLibraries)
 include(CMakePackageConfigHelpers)
 
@@ -38,25 +37,13 @@ include(CMakePackageConfigHelpers)
 set(XSERVER_SOURCE_DIR ${GLOBAL_ROOT_SRC_DIR}/imported/xorg-server)
 message("XSERVER_SOURCE_DIR: ${XSERVER_SOURCE_DIR}")
 
-
-find_program(MAKE_EXE NAMES gmake nmake make
-	PATHS /usr/bin /usr/local/bin
-)
-message("MAKE_EXE is ${MAKE_EXE}")
-
-
-if(MAKE_EXE-NOTFOUND)
-	message(FATAL_ERROR "Not ninja found")
-else()
-	message("MAKE_EXE: ${MAKE_EXE}")
-endif()
-
+set(CMAKE_BUILD_TYPE Debug CACHE STRING "set buildtype debug")
+message("CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
 string(TOLOWER ${CMAKE_BUILD_TYPE} buildtype)
 
-set(XSERVER_BUILD_DIR ${})
+set(XSERVER_BUILD_DIR ${PROJECT_BIBARY_DIR})
 message("*****XSERVER_BUILD_DIR is ${XSERVER_BUILD_DIR}")
 set(INSTALL_CMAKE_DIR ${XSERVER_BUILD_DIR/install})
-
 message("******INSTALL_CMAKE_DIR : ${INSTALL_CMAKE_DIR}")
 
 set(XSERVER_PREFIX ${INSTALL_CMAKE_DIR}/usr)
@@ -70,15 +57,6 @@ endif()
 
 message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 message("XSERVER_SOURCE_DIR: ${XSERVER_SOURCE_DIR}")
-
-#ExternalProject_Add(xserver
-#	SOURCE_DIR ${XSERVER_SOURCE_DIR}
-#	BINARY_DIR ${CMAKE_BINARY_DIR}
-#	CONFIGURE_COMMAND  ./autogen.sh COMMAND ./configure 
-#	-Denable_xvfb=false
-#	BUILD_COMMAND cd ${XSERVER_SOURCE_DIR} &&  ${MAKE_EXE}
-#	INSTALL_COMMAND $MAKE_EXE} install
-#)
 
 EXternalProject_Add(xserver
 	SOURCE_DIR ${XSERVER_SOURCE_DIR}
