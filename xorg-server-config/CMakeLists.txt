@@ -75,8 +75,9 @@ EXternalProject_Add(xserver
 	SOURCE_DIR ${XSERVER_SOURCE_DIR}
 	BINARY_DIR ${CMAKE_BINARY_DIR}
 	CONFIGURE_COMMAND ${XSERVER_SOURCE_DIR}/configure
-	--prefix=${CMAKE_BINARY_DIR}
-	BUILD_COMMAND make
+	--prefix=${CMAKE_BINARY_DIR}/install
+	BUILD_COMMAND make -j8
+	INSTALL_COMMAND make install
 	)	
 
 message(STATUS " autogen.sh command execute")
