@@ -1,0 +1,438 @@
+1: use configure, first need is pixman
+	No package 'pixman-1' found
+
+	Consider adjusting the PKG_CONFIG_PATH environment variable if you
+	installed software in a non-standard prefix.
+
+	Alternatively, you may set the environment variables PIXMAN_CFLAGS
+	and PIXMAN_LIBS to avoid the need to call pkg-config.
+	See the pkg-config man page for more details.
+2: use autoconfigure first need is xorg-macros.
+	so install the xorg-macros into the user/local file.
+
+Xau need xproto
+
+	./configure
+	No package 'xproto' found
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables XAU_CFLAGS
+and XAU_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+	xproto has include dir not lib dir.
+
+	export XAU_LIBS="-lxproto"
+	export XAU_CFLAGS="-I/home/via/prog/xserver/xorgproto-2021.4/build/include"
+  ok to configure. but not ok to make. so choose export PKG_CONFIG_PATH method is ok to compile.
+
+Mako
+	python3 setup.py install --optimize=1
+		need sudo high previlege.
+		Installed /usr/local/lib/python3.8/dist-packages/Mako-1.1.5-py3.8.egg
+	dependency : pip3 install MarkupSafe 
+
+xkeyboard
+	./autogen.sh
+	need autopoint. sudo apt install autopoint.
+	
+	configure.ac:6: error: must install xorg-macros 1.12 or later before
+          running autoconf/autogen
+	so change the command to 
+	
+	./configure  --with-xkb-ruls-symlink=xorg
+	200~configure: error: No package 'xproto' found --> pkg_config_path method
+	No package 'x11' found 
+
+	meson ..
+	meson.build:1:0: ERROR: Meson version is 0.53.2 but project requires >= 0.54.0	
+
+start xcb
+	need Xau and xcb-proto
+	Alternatively, you may set the environment variables XCBPROTO_CFLAGS
+	and XCBPROTO_LIBS to avoid the need to call pkg-config.
+	See the pkg-config man page for more details.
+	xcb-proto
+		export XCBPROTO_LIBS=-L/home/via/prog/xserver/xcb-proto-1.14.1/build/lib
+		export XCBPROTO_CFLAGS=-I/home/via/prog/xserver/xcb-proto-1.14.1/build/share/xcb
+	
+	Xau
+		export NEEDED_LIBS=-L/home/via/prog/xserver/libXau-1.0.9/build/lib
+		export NEEDED_CFLAGS=-I/home/via/prog/xserver/libXau-1.0.9/build/include
+	or
+
+		export XAU_CFLAGS=-I/home/via/prog/xserver/libXau-1.0.9/build/include
+		export XAU_LIBS=-L/home/via/prog/xserver/libXau-1.0.9/build/lib
+		export NEEDED_LIBS=${XAU_LIBS}
+		export NEEDED_CFLAGS=${XAU_CFLAGS}
+	
+is ok.
+	needed_xxx is determined by the xcb compile script. not universal method.
+	
+	CFLAGS and LIBS test:	combine xproto and xau include and lib dir togther into CFLAGS and LIBS 
+	export CFLAGS=${XCBPROTO_CFLAGS}' '${XAU_CFLAGS}
+	export LDFLAGS=${XCBPROTO_LIBS}' '${XAU_LIBS}
+	export LIBS="-lxcb-proto -lXau" this flag is not need, i thought because the xcb make exe search obj is clear.
+
+	need xcbgen
+		export PYTHONPATH=/home/via/prog/xserver/xcb-proto-1.14.1/build/lib/python3.8/site-packages
+		export PYTHON=python3
+	
+	  Used CFLAGS:
+	    CPPFLAGS............: 
+     	 	 CFLAGS..............: -I/home/via/prog/xserver/xcb-proto-1.14.1/build/share/xcb -I/home/via/prog/xserver/libXau-1.0.9/build/include
+	for xcb-proto's python xcbgen python site use, it's better to use pkg-config method.
+	note: it's essential to include xorgproto include dir to compile xcb1.14, the command is 
+		export CFLAGS=-I/home/via/prog/xserver/xorgproto-2021.4/build/include
+		so it's ok
+#end xcb1.14
+
+
+X11 
+	 1.11.1 kbproto inputproto) were not met:
+	No package 'xtrans' found
+	No package 'xcb' found
+add kbproto and xtrans tarball and export xcb path.
+	
+	Note : add xcb then need xau, so the link is complex.
+	Alternatively, you may set the environment variables X11_CFLAGS
+	and X11_LIBS to avoid the need to call pkg-config.
+	See the pkg-config man page for more details.
+	
+	X11_CFLAGS="-I"
+
+xau need by xproto
+obj: fast compiel x11 to compile xorgserver
+
+End X11
+
+
+
+start xorg-server
+
+	./configure
+
+	1. pixman-1
+		PIXMAN_CFLAGS=/home/via/prog/xserver/pixman-0.40.0/build/include
+		PIXMAN_LIBS=/home/via/prog/xserver/pixman-0.40.0/build/lib
+		or pkgconfig .pc path. {choose pkg}
+	2. libdrm
+		LIBDRM_CFLAGS=-I/home/via/prog/xserver/libdrm-2.4.107/install/include
+		LIBDRM_LIBS=-L/home/via/prog/xserver/libdrm-2.4.107/install/lib/x86_64-linux-gnu
+
+		or .pc.
+	3. x11
+		epxort X11 env varible.
+		XLIB_CFLAGS=-I/home/via/prog/xserver/libX11-1.6.12/build/include
+		XLIB_LIBS=-L/home/via/prog/xserver/libX11-1.6.12/build/lib
+		or .pc file.i 
+			/home/via/prog/xserver/libX11-1.6.12/build/lib/pkgconfig
+	4. openGL
+		checking for GL... no
+		configure: error: Package requirements (glproto >= 1.4.17 gl >= 1.2) were not met:
+		 GL_CFLAGS=-I/home/via/prog/xserver/mesadebug/build_debug/install/include
+		 GL_LIBS=-L/home/via/prog/xserver/mesadebug/build_debug/install/lib/x86_64-linux-gnu
+	try : just use mesa binary from another computer. 
+		it's ok to use another. if use .pc you should change path
+
+	dri and SHA1 error
+	to the PKG_CONFIG_PATH environment variable
+	
+	checking for SHA1 implementation... libgcrypt
+	prefix=$PWD/
+No package 'dri' found
+checking for SHA1Init... no
+checking for CC_SHA1_Init... no
+checking for wincrypt.h... no
+checking for SHA1Init in -lmd... no
+checking for LIBSHA1... no
+checking for nettle_sha1_init in -lnettle... no
+checking for gcry_md_open in -lgcrypt... no
+checking for SHA1_Init in -lcrypto... no
+checking for OPENSSL... no
+checking for SHA1 implementation... configure: error: No suitable SHA1 implementation found
+	solution use dri.pc to pkg 
+	pro: use pixman-1 so 
+		export PIXMAN_CFLAGS=-I/home/via/prog/xserver/pixman-0.40.0/build/include
+		export PIXMAN_LIBS=-L/home/via/prog/xserver/pixman-0.40.0/build/lib
+		i guess mesa binary use . so add pixman to env variable.
+
+	the singnature of SHA1 not pass.
+	5. UDEV
+
+	
+	
+	summary
+		export PIXMAN_CFLAGS=-I/home/via/prog/xserver/pixman-0.40.0/build/include/pixman-1
+		export PIXMAN_LIBS="-L/home/via/prog/xserver/pixman-0.40.0/build/lib -lpixman-1"
+		export LIBDRM_CFLAGS="-I/home/via/prog/xserver/libdrm-2.4.107/install/include -I/home/via/prog/xserver/libdrm-2.4.107/install/include/libdrm -I/home/via/prog/xserver/libdrm-2.4.107/install/include/libkms"
+		export LIBDRM_LIBS="-L/home/via/prog/xserver/libdrm-2.4.107/install/lib/x86_64-linux-gnu -ldrm -lkms -ldrm_intel -ldrm_radeon -ldrm_amdgpu"
+		export GL_CFLAGS=-I/home/via/prog/xserver/mesa-20.3.0/build/build/include
+		export GL_LIBS="-L/home/via/prog/xserver/mesa-20.3.0/build/build/lib/x86_64-linux-gnu -lEGL -lGL -lgbm -ldl -lGLESv1_CM"
+		export GBM_CFLAGS=-I/home/via/prog/xserver/mesa-20.3.0/build/build/include
+		export GBM_LIBS="-L/home/via/prog/xserver/mesa-20.3.0/build/build/lib/x86_64-linux-gnu -ldl -lgbm"
+		export XFONT2_CFLAGS=-I/home/via/prog/xserver/libXfont2-2.0.3/build/include
+		export XFONT2_LIBS=-L/home/via/prog/xserver/libXfont2-2.0.3/build/lib
+		export XSHMFENCE_LIBS=-L/home/via/prog/xserver/libxshmfence-1.3/build/lib
+		export XSHMFENCE_CFLAGS=-I/home/via/prog/xserver/libxshmfence-1.3/build/include
+		export XAU_CFLAGS=-I/home/via/prog/xserver/libXau-1.0.9/build/include
+		export XAU_LIBS=-L/home/via/prog/xserver/libXau-1.0.9/build/lib
+		export PCIACCESS_CFLAGS=-I/home/via/prog/xserver/libpciaccess-0.16/build/include
+		export PCIACCESS_LIBS=-L/home/via/prog/xserver/libpciaccess-0.16/build/lib
+		export GLAMOR_CFLAGS="-I/home/via/prog/xserver/libepoxy-1.5.9/build/install/include"
+		export GLAMOR_LIBS="-L/home/via/prog/xserver/libepoxy-1.5.9/build/install/lib/x86_64-linux-gnu -ldl -lepoxy"
+		export XKB_CFLAGS="-I/home/via/prog/xserver/libxkbfile-1.1.0/install/include"
+		export XKB_LIBS="-L/home/via/prog/xserver/libxkbfile-1.1.0/install/lib -lxkbfile"
+		export XCB_CFLAGS="-I/home/via/prog/xserver/libxcb-1.14/build/include -I/home/via/prog/xserver/libxcb-1.14/build/include/xcb"
+		export XCB_LIBS="-L/home/via/prog/xserver/libxcb-1.14/build/lib -lxcb-composite -lxcb-dpms -lxcb -lxcb-dri2 -lxcb-dri3 -lxcb-damage -lxcb-present -lxcb-randr -lxcb-render -lxcb-res -lxcb-screensaver -lxcb-shape -lxcb-shm -lxcb-sync -lxcb-xinerama -lxcb-xinput -lxcb-xkb -lxcb-xvmc -lxcb-record -lxcb-xv -lxcb-xf86dri -lxcb-xfixes -lxcb-glx"
+		export XSERVERCFLAGS_CFLAGS=${PIXMAN_CFLAGS}' '${LIBDRM_CFLAGS}' '${GL_CFLAGS}' '${XFONT2_CFLAGS}' '${XSHMFENCE_CFLAGS}' '${XAU_CFLAGS}' '${PCIACCESS_CFLAGS}' '${GLAMOR_CFLAGS}' '${GLAMOR_CFLAGS}' '${XKB_CFLAGS}' '${XCB_CFLAGS}' '${GBM_CFLAGS}
+		export  XSERVERCFLAGS_LIBS=${PIXMAN_LIBS}' '${LIBDRM_LIBS}' '${GL_LIBS}' '${XFONT2_LIBS}' '${XSHMFENCE_LIBS}' '${XAU_LIBS}' '${PCIACCESS_LIBS}' '${GLAMOR_LIBS}' '${GLAMOR_LIBS}' '${XKB_LIBS}' '${XCB_LIBS}' '${GBM_LIBS}
+		
+		
+		1.1 first set  XSERVERCFLAGS_CFLAGSand XSERVERCFLAGS_LIBS
+		
+		1.2 make error
+			1.2.1 xkb include
+			1.2.2
+					dri.h:41:10: fatal error: xf86dri.h: No such file or directory
+		   			41 | #include "xf86dri.h"
+		     	 		|          ^~~~~~~~~~~
+		     	 		
+
+		
+		export XSERVERLIBS_CFLAGS=${PIXMAN_CFLAGS}' '${LIBDRM_CFLAGS}' '${GL_CFLAGS}' '${XFONT2_CFLAGS}' '${XSHMFENCE_CFLAGS}' '${XAU_CFLAGS}' '${PCIACCESS_CFLAGS}' '${GLAMOR_CFLAGS}' '${GLAMOR_CFLAGS}
+		export XSERVERLIBS_LIBS=${PIXMAN_LIBS}' '${LIBDRM_LIBS}' '${GL_LIBS}' '${XFONT2_LIBS}' '${XSHMFENCE_LIBS}' '${XAU_LIBS}' '${PCIACCESS_LIBS}' '${GLAMOR_LIBS}' '${GLAMOR_LIBS}
+		echo ${XSERVERLIBS_CFLAGS}
+		echo ${XSERVERLIBS_LIBS}
+		export XSERVERLIBS_CFLAGS=$XSERVERCFLAGS_CFLAGS
+		export XSERVERLIBS_LIBS=$XSERVERCFLAGS_LIBS
+
+	Note:
+		export XSERVERCFLAGS_CFLAGS=${PIXMAN_CFLAGS}' '${LIBDRM_CFLAGS}' '${GL_CFLAGS}' '${XFONT2_CFLAGS}' '${XSHMFENCE_CFLAGS}' '${XAU_CFLAGS}' '${PCIACCESS_CFLAGS}' '${GLAMOR_CFLAGS}' '${GLAMOR_CFLAGS}
+		export XSERVERCFLAGS_LIBS=${PIXMAN_LIBS}' '${LIBDRM_LIBS}' '${GL_LIBS}' '${XFONT2_LIBS}' '${XSHMFENCE_LIBS}' '${XAU_LIBS}' '${PCIACCESS_LIBS}' '${GLAMOR_LIBS}' '${GLAMOR_LIBS}
+		
+		
+		checking for XSERVERCFLAGS... no
+		
+		
+		
+Alternatively, you may set the environment variables XSERVERLIBS_CFLAGS
+and XSERVERLIBS_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+./configure --with-sha1=libgcrypt
+
+epoxy
+checking for GLAMOR... no
+configure: error: Package requirements (epoxy) were not met:
+
+No package 'epoxy' found
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables GLAMOR_CFLAGS
+and GLAMOR_LIBS to avoid the need to call pkg-config.
+	5. libepoxy
+		Source dir: /home/via/prog/xserver/libepoxy-1.5.9
+		Build dir: /home/via/prog/xserver/libepoxy-1.5.9/build
+		Build type: native build
+		5.1 meson  0.54 higher version . need. 
+			sudo python setup.py install
+		5.2 export MESA t
+			Run-time dependency glesv2 found: NO (tried pkgconfig and cmake)
+			Library libGLESv2 found: NO
+			Run-time dependency glesv1_cm found: NO (tried pkgconfig and cmake)
+			Library libGLESv1_CM found: NO
+			Program src/gen_dispatch.py fou
+		result
+		export GLAMOR_CFLAGS=-I/home/via/prog/xserver/libepoxy-1.5.9/build/include
+		export GLAMOR_LIBS=-L/home/via/prog/xserver/libepoxy-1.5.9/build/install/lib/x86_64-linux-gnu
+		/home/via/prog/xserver/libepoxy-1.5.9/build/install/lib/x86_64-linux-gnu/pkgconfig
+		
+meson.build:1:0: ERROR: Meson version is 0.53.2 but project requires >= 0.54.0
+
+	6. gbm
+		gbm is in mesa3D, we can import GBM env to 
+		
+		6.1 get flags by grep
+			via@via-VirtualBox:~/prog/xserver/xorg-server-1.20.13/config$ grep -rn GBM
+			Makefile.in:324:GBM_CFLAGS = @GBM_CFLAGS@
+			Makefile.in:325:GBM_LIBS = @GBM_LIBS@
+
+		export GBM_CFLAGS=-I/home/via/prog/xserver/mesa-20.3.0/build/build/include
+		export GBM_LIBS=-L/home/via/prog/xserver/mesa-20.3.0/build/build/lib/x86_64-linux-gnu
+
+export LIBPIXMAN=-L/home/via/prog/xserver/pixman-0.40.0/build/lib
+Alternatively, you may set the environment variables XSERVERCFLAGS_CFLAGS
+and XSERVERCFLAGS_LIBS to avoid the need to call pkg-config.
+
+configure: error: Package requirements ( pixman-1 >= 0.27.2 xfont2 >= 2.0.0 xau xshmfence >= 1.1 xdmcp) were not met:
+need setup #xfont2
+	22:xfont2
+		./autogen.sh 
+		need freetype
+			need libtool. libtoolize
+		./configure
+		 22.1 freetype
+		 	/home/via/prog/xserver/freetype-2.11.0/install/lib/pkgconfig
+		 	/home/via/prog/xserver/freetype-2.11.0/install/lib
+		 22.2 fontenc
+		 	export XFONT_CFLAGS=-I/home/via/prog/xserver/libfontenc-1.1.4/build/include
+		 	export XFONT_LIBS=-L/home/via/prog/xserver/libfontenc-1.1.4/build/lib
+		 	PKG =/home/via/prog/xserver/libfontenc-1.1.4/build/lib/pkgconfig
+		export XFONT2_CFLAGS=-I/home/via/prog/xserver/libXfont2-2.0.3/build/include
+		export XFONT2_LIBS=-L/home/via/prog/xserver/libXfont2-2.0.3/build/lib
+		PKG=/home/via/prog/xserver/libXfont2-2.0.3/build/lib/pkgconfig
+
+XSERVERCFLAGS_CFLAGS=${PIXMAN_CFLAGS}' '${LIBDRM_CFLAGS}' '${GL_CFLAGS}
+XSERVERCFLAGS_LIBS=${PIXMAN_LIBS}' '${LIBDRM_LIBS}' '${GL_LIBS}
+###################3end xorg-server#
+
+
+####################Mesa	
+	meson build method
+
+	1. libdrm
+		add .pc to pkg_config_path
+		and it need pciaccess then add .pc. 
+		/home/via/prog/xserver/libpciaccess-0.16/build/lib/pkgconfig
+	2. need llvm
+		need install online. or use llvm binary in gitlab.
+	3. elf
+	4. wayland-scanner 
+			wayland + wayland_protocal
+		wayland
+			/configure --prefix=$PWD/build --disable-documentation
+		wayland-protocal
+			need wayland-scanner  export the below variable
+			WAYLAND_SCANNER_CFLAGS=-I/home/via/prog/xserver/wayland-1.19.0/build/include
+			WAYLAND_SCANNER_LIBS=-L/home/via/prog/xserver/wayland-1.19.0/build/lib
+			ok to compile wayland-protocal
+	5. x11
+		you should add the directory containing `xproto.pc' to the PKG_CONFIG_PATH 			environment variable Package 'xproto', required by 'x11', not found
+		so add xproto and x11 
+		x11
+		xproto: /home/via/prog/xserver/xorgproto-2020.1/build/share/pkgconfig
+		
+		you should add the directory containing `xcb.pc'to the PKG_CONFIG_PATH 			environment variable Package 'xcb', required by 'x11', not found
+		x11:
+		xcb: /home/via/prog/xserver/libxcb-1.14/build/lib/pkgconfig
+		
+			you should add the directory containing `xau.pc'
+			to the PKG_CONFIG_PATH environment variable
+			Package 'xau', required by 'xcb', not found
+			xcb:
+			xau:	/home/via/prog/xserver/libXau-1.0.9/build/lib/pkgconfig
+		that's all need to export . x11->xproto->xcb->xau
+	6. xext
+		No package 'xproto' found
+		No package 'x11' found
+		No package 'xextproto' found
+		XEXT_CFLAGS="-I/home/via/prog/xserver/libX11-1.6.12/build/include -I/home/via/prog/xserver/xorgproto-2021.4/build/include  -I"
+		XEXT_LIBS="-Lhome/via/prog/xserver/libX11-1.6.12/build/lib  -L -L"
+		
+		it's better use pkgconfig.
+		export PKG_CONFIG_PATH=/home/via/prog/xserver/libX11-1.6.12/build/lib/pkgconfig:/home/via/prog/xserver/xorgproto-2020.1/build/share/pkgconfig:/home/via/prog/xserver/libxcb-1.14/build/lib/pkgconfig:/home/via/prog/xserver/libXau-1.0.9/build/lib/pkgconfig:/home/via/prog/xserver/xextproto-7.3.0/install/lib/pkgconfig:/home/via/prog/xserver/xorgproto-2020.1/build/share/pkgconfig:/home/via/prog/xserver/libpciaccess-0.16/build/lib/pkgconfig:$PKG_CONFIG_PATH
+		it's ok to compile Xext.
+		export /home/via/prog/xserver/libXext-1.3.4/build/lib/pkgconfig to PKG_CONFIG_PATH
+		
+	7. xdamage.
+		(damageproto >= 1.1 xfixes fixesproto xextproto) were not met:
+		7.1 xfixes
+			No package 'xproto' found
+			No package 'fixesproto' found
+			No package 'xextproto' found
+			No package 'x11' found
+		export PKG_CONFIG_PATH=/home/via/prog/xserver/xorgproto-2020.1/build/share/pkgconfig 
+			export PKG_CONFIG_PATH=/home/via/prog/xserver/libX11-1.6.12/build/lib/pkgconfig:/home/via/prog/xserver/xorgproto-2020.1/build/share/pkgconfig:/home/via/prog/xserver/libxcb-1.14/build/lib/pkgconfig:/home/via/prog/xserver/libXau-1.0.9/build/lib/pkgconfig:/home/via/prog/xserver/xextproto-7.3.0/install/lib/pkgconfig:/home/via/prog/xserver/xorgproto-2020.1/build/share/pkgconfig:/home/via/prog/xserver/libXfixes-5.0.3/build/lib/pkgconfig:$PKG_CONFIG_PATH 
+			and it's ok
+	Xfixes = /home/via/prog/xserver/libXfixes-5.0.3/build/lib/pkgconfig
+	
+		7.2 fixesproto
+			git clone https://gitlab.freedesktop.org/xorg/proto/fixesproto.git
+			git checkout fixesproto-5.0
+			
+			###no need because /home/via/prog/xserver/xorgproto-2020.1/build/share/pkgconfig has fixesproto.pc
+			
+		7.3 xextproto: /home/via/prog/xserver/xextproto-7.3.0/install/lib/pkgconfig
+		
+		and damage /home/via/prog/xserver/libXdamage-1.1/build/lib/pkgconfig
+			depency is xfixes.
+		
+	8. xshmfence
+		easy to get 
+		/home/via/prog/xserver/libxshmfence-1.3/build/lib/pkgconfig
+	9. xxf86vm
+		depency: xext :/home/via/prog/xserver/libXext-1.3.4/build/lib/pkgconfig
+		/home/via/prog/xserver/libXxf86vm-1.1.4/build/lib/pkgconfig	
+	10 xrandr
+		need xrender
+			No package 'xrender' found
+			xrender: /home/via/prog/xserver/libXrender-0.9.10/build/lib/pkgconfig
+		configure: error: Package requirements (x11 >= 1.6 randrproto >= 1.5 xext xextproto xrender renderproto) were not met:
+
+				No package 'x11' found
+				No package 'randrproto' found
+				No package 'xext' found
+				No package 'xextproto' found
+				Package 'xproto', required by 'xrender', not found
+unset PKG_CONFIG_PATH
+export PKG_CONFIG_PATH=/home/via/prog/xserver/libX11-1.6.12/build/lib/pkgconfig:/home/via/prog/xserver/xorgproto-2020.1/build/share/pkgconfig:/home/via/prog/xserver/libxcb-1.14/build/lib/pkgconfig:/home/via/prog/xserver/libXau-1.0.9/build/lib/pkgconfig:/home/via/prog/xserver/xextproto-7.3.0/install/lib/pkgconfig:/home/via/prog/xserver/xorgproto-2020.1/build/share/pkgconfig:/home/via/prog/xserver/libXfixes-5.0.3/build/lib/pkgconfig:/home/via/prog/xserver/libXrender-0.9.10/build/lib/pkgconfig:/home/via/prog/xserver/libXext-1.3.4/build/lib/pkgconfig:/home/via/prog/xserver/libXrandr-1.5.2/build/lib/pkgconfig:/home/via/prog/xserver/wayland-1.19.0/build/lib/pkgconfig:/home/via/prog/xserver/wayland-protocols-1.21/build/share/pkgconfig:/home/via/prog/xserver/libdrm-2.4.107/install/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH 
+
+  xrandr: /home/via/prog/xserver/libXrandr-1.5.2/build/lib/pkgconfig
+
+
+meson --prefix=$PWD/build .. --reconfigure
+ninja / ninja install	
+
+
+runtime dependency 
+Run-time dependency vdpau found: NO (tried pkgconfig and cmake)
+Run-time dependency xvmc found: NO (tried pkgconfig and cmake)
+Run-time dependency xv found: NO (tried pkgconfig and cmake)
+	xext
+Run-time dependency libomxil-bellagio found: NO (tried pkgconfig and cmake)
+Run-time dependency libtizonia found: NO (tried pkgconfig and cmake)
+Run-time dependency libtizplatform found: NO (tried pkgconfig and cmake)
+Run-time dependency tizilheaders found: NO (tried pkgconfig and cmake)
+Run-time dependency libva found: NO (tried pkgconfig and cmake)
+Run-time dependency libzstd found: NO (tried pkgconfig and cmake)
+Run-time dependency valgrind found: NO (tried pkgconfig)
+Run-time dependency libunwind found: NO (tried pkgconfig and cmake)
+
+vulkan sdk
+
+wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.2.135-bionic.list http://packages.lunarg.com/vulkan/1.2.135/lunarg-vulkan-1.2.135-bionic.list
+sudo apt update
+sudo apt install vulkan-sdk
+————————————————
+
+原文链接：https://blog.csdn.net/wenshuifuping/article/details/105410317
+
+then ninja process demand pciaccess, xdamage, xfiexs installed on /usr/loca/  prefix dir.
+then compile ok!.
+##############################3end Mesa
+
+INDEX
+
+proto dir
+	XPROTO_INCDIR=xorgproto-2021.4/build/include
+	XCBPROTO_LIBDIR=xcb-proto-1.14.1/build/lib
+	XCBPROTO_INCDIR=xcb-proto-1.14.1/build/share/xcb
+	XAU_INCDIR=libXau-1.0.9/build/include
+	XAU_LIBDIR=libXau-1.0.9/build/lib
+	XLIB_CFLAGS=-I/home/via/prog/xserver/libX11-1.6.12/build/include
+	XLIB_LIBS=-L/home/via/prog/xserver/libX11-1.6.12/build/lib
+
+G
+
+
+libudev  meson build of xserver need it.
+
+libgudev-237
+	Run-time dependency glib-2.0 found: NO (tried pkgconfig and cmake)
+	
+	ERROR: Dependency "libudev" not found, tried pkgconfig and cmake
