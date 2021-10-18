@@ -1,0 +1,61 @@
+
+find_package(DRM REQUIRED COMPONENTS drm KMS)
+#if(DRM-NOTFOUND)
+#	message("NOT Find DRM library dependency")
+#else()
+#	message("Find DRM denpency")
+#	message("DRM_LIBRARIES :  ${DRM_INCLUDE_DIR}, ${DRM_LIBRARIES}")
+#	if(NOT DEFINED ENV{LIBDRM_CFLAGS})
+#		message("NOT defined environment variable: LIBDRM_CFLAGS")
+#		set(ENV{LIBDRM_CFLAGS_MID}  "-I${DRM_INCLUDE_DIR} -I${DRM_INCLUDE_DIR}/libdrm -I${DRM_INCLUDE_DIR}/libkms")
+#		if(DEFINED ENV{LIBDRM_CFLAGS_MID})
+#			message("defined environment variable LIBDRM_CFLAGS:" $ENV{LIBDRM_CFLAGS_MID})
+#		endif()
+#	else()
+#		message("defined LIBDRM_CFLAGS: " $ENV{LIBDRM_CFLAGS_MID})
+#	endif()
+#	if(NOT DEFINED ENV{LIBDRM_LIBS})
+#		set(ENV{LIBDRM_LIBS} "-L${DRM_LIBRARY}  -ldrm -lkms -ldrm_intel -ldrm_radeon -ldrm_amdgpu -ldl")
+#		message("defined env var LIBDRM_LIBS: " $ENV{LIBDRM_LIBS})
+#	endif()
+#	message("LIBDRM_CFLAGS: $ENV{LIBDRM_CFLAGS}")
+#	message("LIBDRM_LIBS: $ENV{LIBDRM_LIBS}")
+#endif()
+#
+#set(LIBDRM_FLAG "-I${DRM_INCLUDE_DIR} -I${DRM_INCLUDE_DIR}/libdrm -I${DRM_INCLUDE_DIR}/libkms")
+#
+#
+#
+#set(LIBDRM_FLAG "-I${DRM_INCLUDE_DIR} -I${DRM_INCLUDE_DIR}/libdrm -I${DRM_INCLUDE_DIR}/libkms")
+
+#find_program(MESON_EXECUTABLE
+#	NAMES meson
+#	PATHS /usr/bin /usr/local/bin
+#	)
+#if(MESON_EXECUTABLE-NOTFOUND)
+#	message(FATAL_ERROR "not meson script found")
+#else()
+#	message("MESON_EXECUTABLE: ${MESON_EXECUTABLE}")
+#endif()
+#
+#find_program(NINJA_EXECUTABLE
+#	NAMES ninja
+#	PATHS /usr/bin /usr/loca/bin
+#	)
+#if(NINJA_EXECUTABLE-NOTFOUND)
+#	message(FATAL_ERROR "Not ninja found")
+#else()
+#	message("NINJA_EXCUTABLE: ${NINJA_EXECUTABLE}")
+#
+message(STATUS " meson command excute bypass")
+#EXternalProject_Add(xserver
+#	SOURCE_DIR ${XSERVER_SOURCE_DIR}
+#	BINARY_DIR ${CMAKE_BINARY_DIR}
+#	BUILD_ALWAYS 1
+#	CONFIGURE_COMMAND ${MESON_EXECUTABLE}
+#	--buildtype "${buildtype}"
+#	--prefix "${CMAKE_BINARY_DIR}/install"
+#	${XSERVER_SOURCE_DIR}
+#	BUILD_COMMAND ${NINJA_EXECUTABLE} -C <BINARY_DIR>
+#	INSTALL_COMMAND ${NINJA_EXECUTABLE} -C <BINARY_DIR> install
+#	)

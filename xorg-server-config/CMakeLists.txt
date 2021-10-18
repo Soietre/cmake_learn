@@ -9,27 +9,6 @@ endif()
 ##set module path to call FindXXX.cmake"
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-find_program(MESON_EXECUTABLE
-	NAMES meson
-	PATHS /usr/bin /usr/local/bin
-	)
-if(MESON_EXECUTABLE-NOTFOUND)
-	message(FATAL_ERROR "not meson script found")
-else()
-	message("MESON_EXECUTABLE: ${MESON_EXECUTABLE}")
-endif()
-
-find_program(NINJA_EXECUTABLE
-	NAMES ninja
-	PATHS /usr/bin /usr/loca/bin
-	)
-if(NINJA_EXECUTABLE-NOTFOUND)
-	message(FATAL_ERROR "Not ninja found")
-else()
-	message("NINJA_EXCUTABLE: ${NINJA_EXECUTABLE}")
-endif()
-
-
 include(ExternalProject)
 
 #include(${GLOBAL_ROOT_SRC_DIR}/cmake/utils.cmake)
@@ -37,7 +16,7 @@ include(InstallRequiredSystemLibraries)
 include(CMakePackageConfigHelpers)
 
 set(IMPORTEDDIR ${GLOBAL_ROOT_SRC_DIR}/imported)
-
+message("GLOBAL_ROOT_SRC_DIR: ${GLOBAL_ROOT_SRC_DIR}")
 set(XSERVER_SOURCE_DIR ${IMPORTEDDIR}/xorg-server)
 message("XSERVER_SOURCE_DIR: ${XSERVER_SOURCE_DIR}")
 set(INSTALL_CMAKE_DIR ${XSERVER_BUILD_DIR}/install)
@@ -60,6 +39,10 @@ message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 message("XSERVER_SOURCE_DIR: ${XSERVER_SOURCE_DIR}")
 
 ##check and add dependency third package###
+
+set(XSERVERCFLAGS_CFLAGS "")
+set(XSERVERCFLAGS_LIBS "")
+
 option(BUILD_XKBFILE_SUPPORT "Build with xkbfile support" ON)
 if(BUILD_XKBFILE_SUPPORT)
 	message(STATUS "Calling Find XKBFILE.cmake")
@@ -68,38 +51,31 @@ if(BUILD_XKBFILE_SUPPORT)
 	#target_link_libraries(XSERVER XKBFILE)
 endif()
 
-set(LIBS ${XKBFILE_LIBRARY})
-set(CMAKE_C_LINK_EXECUTABLE "${CMAKE_C_LINK_EXECUTABLE} -ldl")
+find_package(DRM REQUIRED COMPONENTS drm KMS)
+#
 
 EXternalProject_Add(xserver
 	SOURCE_DIR ${XSERVER_SOURCE_DIR}
 	BINARY_DIR ${CMAKE_BINARY_DIR}
-	CONFIGURE_COMMAND ${XSERVER_SOURCE_DIR}/configure
+	CONFIGURE_COMMAND
+	${CMAKE_COMMAND} -E env LIBDRM_CFLAGS=\"${DRM_CFLAGS}\"
+	${CMAKE_COMMAND} -E env LIBDRM_LIBS=\"${DRM_LIBS}\"
+	${CMAKE_COMMAND} -E env XSERVERCFLAGS_CFLAGS=\"${XSERVERCFLAGS_CFLAGS}\"
+	${CMAKE_COMMAND} -E env XSERVERCFLAGS_LIBS=\"${XSERVERCFLAGS_LIBS}\"
+	${XSERVER_SOURCE_DIR}/configure
 	--prefix=${CMAKE_BINARY_DIR}/install
 	BUILD_COMMAND make -j8
 	INSTALL_COMMAND make install
 	)	
 
-message(STATUS " autogen.sh command execute")
 EXternalProject_Add_Step(xserver
 	WORKING_DIRECTORY ${XSERVER_SOURCE_DIR}
 	COMMAND ${XSERVER_SOURCE_DIR}/autogen.sh
+	COMMENT "build the configure target"
 	DEPENDERS configure
 	)
 
 
-message(STATUS " meson command excute bypass")
-#EXternalProject_Add(xserver
-#	SOURCE_DIR ${XSERVER_SOURCE_DIR}
-#	BINARY_DIR ${CMAKE_BINARY_DIR}
-#	BUILD_ALWAYS 1
-#	CONFIGURE_COMMAND ${MESON_EXECUTABLE}
-#	--buildtype "${buildtype}"
-#	--prefix "${CMAKE_BINARY_DIR}/install"
-#	${XSERVER_SOURCE_DIR}
-#	BUILD_COMMAND ${NINJA_EXECUTABLE} -C <BINARY_DIR>
-#	INSTALL_COMMAND ${NINJA_EXECUTABLE} -C <BINARY_DIR> install
-#	)
 
 message("CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 message("DIR: ${CMAKE_BINARY_DIR}/install/include DES:{CMAKE_INSTALL_PREFIX}") 
