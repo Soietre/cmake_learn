@@ -1,0 +1,25 @@
+set(MESA_PATH ${GLOBAL_ROOT_SRC_DIR}/imported/third/mesa-20.3.0)
+
+find_path(GL_INCLUDE_DIR NAMES GL/gl.h PATHS "${MESA_PATH}/include" )
+find_library(GL_LIB_DIR NAMES libGL.so PATHS "${MESA_PATH}/lib/x86_64-linux-gnu")
+if(GL_INCLUDE_DIR-NOTFOUND)
+	message(FATAL_ERROR "not find gl.h")
+else()
+	message("find gl.h")
+endif()
+mark_as_advanced(GL_INCLUDE_DIR)
+
+message("GL_INCLUDE_DIR : ${GL_INCLUDE_DIR}")
+message("GL_LIB_DIR : ${GL_LIB_DIR}")
+#if(TARGET MESA3D)
+#	return()
+#endif()
+
+message("CMAKE_CURRENT_LIST_DIR : ${CMAKE_CURRENT_LIST_DIR}")
+#get_filename_component(GL_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}" ABSOLUTE)
+#get_filename_component(GL_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/../include" ABSOLUTE)
+#get_filename_component(GL_LIB_DIR "${CMAKE_CURRENT_LIST_DIR}/../" ABSOLUTE)
+#message("GL_LIB_DIR : ${GL_LIB_DIR}")
+add_library(GL SHARED IMPORTED)
+
+mark_as_advanced(GL_LIB_DIR GL_INCLUDE_DIR)
