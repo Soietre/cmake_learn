@@ -17,5 +17,5 @@ if(PCI_LIBDIR-NOTFOUND)
 endif()
 
 set(PCIACCESS_CFLAGS "-I${PCI_INCLUDE_DIR} ")
-set(PCIACCESS_LIBS "-L{PCI_LIB_DIR} -lpciaccess ")
+set(PCIACCESS_LIBS "-L${PCI_LIB_DIR} -lpciaccess ")
 
