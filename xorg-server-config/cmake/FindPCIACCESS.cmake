@@ -16,6 +16,6 @@ if(PCI_LIBDIR-NOTFOUND)
 	find_library(PCI_LIBDIR NAMES libpciaccess.so PATHS ${PCI_LIB_DIR})
 endif()
 
-set(PCIACCESS_CFLAGS "-I${PCI_INCLUDE_DIR} ")
-set(PCIACCESS_LIBS "-L${PCI_LIB_DIR} -lpciaccess ")
+set(PCIACCESS_CFLAGS "-I${PCI_PATH}/include")
+set(PCIACCESS_LIBS "-L${PCI_PATH}/lib -lpciaccess ")
 

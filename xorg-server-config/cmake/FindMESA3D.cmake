@@ -21,18 +21,10 @@ foreach(comp ${MESA3D_FIND_COMPONENTS})
 		
 		#for xorg-server configure build GL_CFLAGS GL_LIBS
 		set(GL_CFLAGS "-I${MESA_INCLUDE_DIR} -I${GL_INCLUDE_DIR} ")
-		set(GL_LIBS "-L${MESA_LIB_DIR} -lGL")
+		set(GL_LIBS "-L${MESA_LIB_DIR} -lGL ")
 		
-		message("GL_INCLUDE_DIR : ${GL_INCLUDE_DIR}")
-		message("GL_LIBDIR : ${GL_LIBDIR}")
-		
-		#get_filename_component(GL_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}" ABSOLUTE)
-		#get_filename_component(GL_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/../include" ABSOLUTE)
-		#get_filename_component(GL_LIB_DIR "${CMAKE_CURRENT_LIST_DIR}/../" ABSOLUTE)
-		#message("GL_LIB_DIR : ${GL_LIB_DIR}")
-		add_library(GL SHARED IMPORTED)
-		
-		mark_as_advanced(GL_LIB_DIR GL_INCLUDE_DIR)
+		message("GL_CFLAGS : ${GL_CFLAGS}")
+		message("GL_LIBS : ${GL_LIBS}")
 	endif()
 	if("gbm" STREQUAL comp)
 		find_path(GBM_INCLUDE_DIR NAMES gbm.h PATHS "${MESA_PATH}/include")

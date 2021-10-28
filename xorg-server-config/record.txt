@@ -59,3 +59,7 @@ message(STATUS " meson command excute bypass")
 #	BUILD_COMMAND ${NINJA_EXECUTABLE} -C <BINARY_DIR>
 #	INSTALL_COMMAND ${NINJA_EXECUTABLE} -C <BINARY_DIR> install
 #	)
+
+
+
+export PIXMAN_CFLAGS='-I/home/via/prog/github/imported/third/pixman-0.40.0/include/pixman-1 '
